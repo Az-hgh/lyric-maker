@@ -646,8 +646,18 @@ dist\lyric-maker\lyric-maker.exe --get-model small
 
 | 文件 | 说明 |
 |---|---|
-| `dist_pkg\lyric-maker-setup.exe` | Inno Setup 安装包（约 156MB，lzma2 压缩） |
+| `dist_pkg\lyric-maker-setup.exe` | Inno Setup 安装包（约 198MB，lzma2 压缩） |
 | `dist_pkg\lyric-maker.iss` | 安装包构建脚本（需 Inno Setup 6 重新编译） |
+
+**装完立刻能用 vs. 还得下点东西：**
+
+| 功能 | 装完状态 | 说明 |
+|---|---|---|
+| 界面、设置、文件浏览/拖拽 | ✅ 立刻可用 | 纯本地逻辑 |
+| 格式转换（视频↔音频、封装/编码转换） | ✅ 立刻可用 | 自带 `runtime/ffmpeg.exe` |
+| 下载 YouTube / 抖音 视频 | ✅ 立刻可用 | 自带 `runtime/yt-dlp.exe` + `node.exe`（解 n 参数挑战） |
+| 硬字幕 OCR（画面字幕识别） | ✅ 立刻可用 | OCR 引擎已打进 `_internal`（RapidOCR） |
+| **语音识别生成歌词**（核心功能） | ⚠️ 需先下模型 | 模型**不含在包里**（large-v3 单独 2.9GB），装后首次在「本地模型」页面选一个下载 |
 
 **关键取舍：安装包故意【不含】语音识别模型**（`large-v3` 单独 2.9GB，装进包里不现实，
 而且多数人只用 `small`）。模型改由用户在**装完之后**自行选择下载：
@@ -663,9 +673,10 @@ dist\lyric-maker\lyric-maker.exe --get-model small
 **重新构建安装包：**
 
 ```bat
-rem 1) 先把最新冻结版（exe + _internal，不含 models/）铺到 dist_pkg\App\
+rem 1) 先把最新冻结版铺到 dist_pkg\App\（含 runtime/，不含 models/）
 copy lyric-maker.exe dist_pkg\App\
 xcopy /E /I /Y _internal dist_pkg\App\_internal
+xcopy /E /I /Y runtime   dist_pkg\App\runtime
 rem   （务必确认 dist_pkg\App\models 不存在 / 为空）
 
 rem 2) 用 Inno Setup 编译
@@ -673,6 +684,9 @@ rem 2) 用 Inno Setup 编译
 ```
 
 产物在 `dist_pkg\lyric-maker-setup.exe`。
+
+> 注：`runtime/`（ffmpeg/node/yt-dlp，约 167MB）必须一起打进包，否则装完连音频解码、
+> 格式转换、视频下载都用不了——这些都是「不含模型」之外、但「必须随程序携带」的运行时。
 
 ---
 
