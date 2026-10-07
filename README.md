@@ -640,6 +640,42 @@ dist\lyric-maker\lyric-maker.exe --get-model small
 
 ---
 
+## 安装包（不含语音模型，装后自选下载）
+
+仓库里另有一份 **Windows 安装包** 产物，适合发给不想碰命令行的人：
+
+| 文件 | 说明 |
+|---|---|
+| `dist_pkg\lyric-maker-setup.exe` | Inno Setup 安装包（约 156MB，lzma2 压缩） |
+| `dist_pkg\lyric-maker.iss` | 安装包构建脚本（需 Inno Setup 6 重新编译） |
+
+**关键取舍：安装包故意【不含】语音识别模型**（`large-v3` 单独 2.9GB，装进包里不现实，
+而且多数人只用 `small`）。模型改由用户在**装完之后**自行选择下载：
+
+- 安装目录落在 `%LOCALAPPDATA%\lyric-maker`（当前用户、免管理员），
+  因为软件把模型和 `settings.json` 写在「exe 旁边」，Program Files 对普通用户只读，
+  放 AppData 才能保证装后还能下载模型、保存设置。
+- 第一次打开软件，进「本地模型」页面，从 `small / medium / large-v3` 等里**任选下载**；
+  下载带断点续传，源默认走 ModelScope / hf-mirror 双源。
+- 桌面的快捷方式、开始菜单项、卸载程序都由安装包写好；卸载默认**保留**已下载的模型，
+  想连模型一起删，用 `lyric-maker-setup.exe /MODELS=delete` 重跑卸载逻辑。
+
+**重新构建安装包：**
+
+```bat
+rem 1) 先把最新冻结版（exe + _internal，不含 models/）铺到 dist_pkg\App\
+copy lyric-maker.exe dist_pkg\App\
+xcopy /E /I /Y _internal dist_pkg\App\_internal
+rem   （务必确认 dist_pkg\App\models 不存在 / 为空）
+
+rem 2) 用 Inno Setup 编译
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" dist_pkg\lyric-maker.iss
+```
+
+产物在 `dist_pkg\lyric-maker-setup.exe`。
+
+---
+
 ## 常见问题
 
 **双击 .bat 报 "Unable to create process using ...python.exe" 或 Python 版本不对。**

@@ -76,3 +76,11 @@ settings.json
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# ============================================================
+#  安装包构建产物：体积太大（setup.exe 156MB、App/ 573MB），且 GitHub 单文件
+#  硬限 100MB，不能进仓库。改走 GitHub Release 资产。
+#  dist_pkg/lyric-maker.iss（构建脚本，文本）照常提交，便于别人复刻安装包。
+# ============================================================
+dist_pkg/App/
+dist_pkg/lyric-maker-setup.exe
